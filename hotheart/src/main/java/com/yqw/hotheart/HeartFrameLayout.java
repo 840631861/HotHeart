@@ -88,6 +88,8 @@ public class HeartFrameLayout extends FrameLayout {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
+        if(list == null)
+            list = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             HeartBean heartBean = list.get(i);
             // 重置
