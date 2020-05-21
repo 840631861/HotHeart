@@ -75,6 +75,7 @@ public class HeartConstraintLayout extends ConstraintLayout {
         degreesMin = typedArray.getInt(R.styleable.HeartViewGroup_heart_degrees_interval_min, degreesMin);
         degreesMax = typedArray.getInt(R.styleable.HeartViewGroup_heart_degrees_interval_max, degreesMax);
         typedArray.recycle();
+        clickHandler = new Handler();
     }
 
     {
@@ -111,7 +112,14 @@ public class HeartConstraintLayout extends ConstraintLayout {
             canvas.restore();
         }
     }
-
+    //手指按下的点为(x1, y1)手指离开屏幕的点为(x2, y2)
+    float x1 = 0;
+    float x2 = 0;
+    float y1 = 0;
+    float y2 = 0;
+    boolean isMove = false;
+    private Handler clickHandler;
+    private int clickCount = 0;//记录连续点击次数
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -120,6 +128,12 @@ public class HeartConstraintLayout extends ConstraintLayout {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                clickCount++;
+                //当手指按下的时候
+                isMove = false;
+                x1 = event.getX();
+                y1 = event.getY();
+
                 long newClickTime = System.currentTimeMillis();
                 //双击以上事件都会调用心动动画
                 if (newClickTime - singleClickTime < timeout) {
@@ -128,14 +142,39 @@ public class HeartConstraintLayout extends ConstraintLayout {
                     //调用双击事件
                     if (mDoubleClickListener != null)
                         mDoubleClickListener.onDoubleClick(this);
+                    //在双击事件中清除点击次数，防止有时多次点击触发单击事件
+                    clickCount = 0;
                 } else {
-                    if (mSimpleClickListener != null)
-                        mSimpleClickListener.onSimpleClick(HeartConstraintLayout.this);
+
+
                 }
                 singleClickTime = newClickTime;
                 break;
+            case MotionEvent.ACTION_MOVE:
+                //当手指移动的时候
+                x2 = event.getX();
+                y2 = event.getY();
+                if(Math.abs(x1-x2) > 50 || Math.abs(y1-y2) > 50){
+                    isMove = true;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                clickHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (clickCount == 1) {
+                            if (mSimpleClickListener != null && !isMove)
+                                mSimpleClickListener.onSimpleClick(HeartConstraintLayout.this);
+                        }else if(clickCount==2){
+                        }
+                        clickHandler.removeCallbacksAndMessages(null);
+                        //清空handler延时，并防内存泄漏
+                        clickCount = 0;//计数清零
+                    }
+                },timeout);
+                break;
         }
-        return false;
+        return true;
     }
 
     /**
