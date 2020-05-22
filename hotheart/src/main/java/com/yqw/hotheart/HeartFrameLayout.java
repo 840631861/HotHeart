@@ -171,6 +171,7 @@ public class HeartFrameLayout extends FrameLayout {
         list.add(bean);
         invalidate();
         if (START) {
+            if(handler!=null)
             handler.sendEmptyMessage(0);
         }
     }
@@ -179,6 +180,8 @@ public class HeartFrameLayout extends FrameLayout {
      * 刷新
      */
     private void Refresh() {
+        if(list == null)
+            return;
         for (int i = 0; i < list.size(); i++) {
             HeartBean bean = list.get(i);
             bean.count++;
