@@ -196,6 +196,8 @@ public class HeartConstraintLayout extends ConstraintLayout {
      */
     private void startSwipe(MotionEvent event) {
         //
+        if(list == null)
+            return;
         HeartBean bean = new HeartBean();
         bean.scanle = 1; //
         bean.alpha = MaxAlpha; //

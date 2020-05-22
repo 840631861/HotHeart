@@ -157,6 +157,8 @@ public class HeartFrameLayout extends FrameLayout {
      */
     private void startSwipe(MotionEvent event) {
         //
+        if(list == null)
+            return;
         HeartBean bean = new HeartBean();
         bean.scanle = 1; //
         bean.alpha = MaxAlpha; //
